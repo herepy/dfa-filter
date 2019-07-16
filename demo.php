@@ -7,8 +7,9 @@
  */
 
 require_once "vendor/autoload.php";
+use \PyDfa\DfaFilter;
 
-$filter=\PyDfa\DfaFilter::build();
+$filter=DfaFilter::build();
 
 $filter->addSensitives(["测试","良好","通过"]);
 

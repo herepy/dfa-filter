@@ -18,23 +18,25 @@ PHP >= 7.0.0
 
 ## 使用方式
 
-克隆git地址:
+git方式安装:
 ```git
     git clone https://github.com/herepy/dfa-filter.git
 ```
-composer安装所需文件:
-```composer
-    composer install
+composer方式安装
+```comopser
+    composer require pengyu/dfa-filter
 ```
+
 引入到项目:
 ```php
     require_once "vendor/autoload.php";
+    use \PyDfa\DfaFilter;
 ```
 
 示例:
 ```php
 //初始化
-$filter=\PyDfa\DfaFilter::build();
+$filter=DfaFilter::build();
 //添加敏感词
 $filter->addSensitives(["测试","良好","通过"]);
 //添加干扰因子
