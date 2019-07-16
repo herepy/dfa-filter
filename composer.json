@@ -1,0 +1,27 @@
+{
+    "name": "pengyu/dfa-filter",
+    "description": "This is a sensitive words filter based on DFA",
+    "type": "library",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "authors": [
+        {
+            "name": "pengyu",
+            "email": "917103429@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PyDfa\\": "src/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    }
+}
