@@ -32,6 +32,12 @@ class DfaFilter
     const DFA_MARK=2;
 
     /**
+     * const 匹配模式
+     */
+    const DFA_MIN_MATCH=0;
+    const DFA_MAX_MATCH=1;
+
+    /**
      * DfaFilter constructor 单利模式，禁止手动new
      */
     protected function __construct()
@@ -79,7 +85,7 @@ class DfaFilter
      * @param string $delimiter 内容分割符
      * @throws FileNotFoundException
      */
-    public function importSensitiveFile(string $filename,$delimiter=PHP_EOL)
+    public function importSensitiveFile($filename,$delimiter=PHP_EOL)
     {
         if (!$filename || !file_exists($filename)) {
             throw new FileNotFoundException($filename);
@@ -101,7 +107,7 @@ class DfaFilter
     /**
      * 从文件中一行一行的读
      *
-     * @param $filename 文件名
+     * @param $filename string 文件名
      * @return \Generator
      */
     protected function readLineFromFile($filename)
@@ -118,7 +124,7 @@ class DfaFilter
      *
      * @param array $words 敏感词数组
      */
-    public function addSensitives(array $words)
+    public function addSensitives($words)
     {
         if (count($words) == 0) {
             return;
@@ -134,7 +140,7 @@ class DfaFilter
      *
      * @param string $word 敏感词
      */
-    protected function add(string $word)
+    protected function add($word)
     {
         $len=mb_strlen($word,'utf-8');
         if ($len == 0) {
@@ -162,7 +168,7 @@ class DfaFilter
      * @param string $word 词
      * @return bool
      */
-    public function isKey(string $word)
+    public function isKey($word)
     {
         $len=mb_strlen($word,'utf-8');
         if ($len == 0) {
@@ -188,6 +194,7 @@ class DfaFilter
         if ($tree["isEnd"] === true) {
             return true;
         }
+
         return false;
     }
 
@@ -197,7 +204,7 @@ class DfaFilter
      * @param string $content 文本内容
      * @return bool 包含返回true
      */
-    public function check(string $content)
+    public function check($content)
     {
         $len=mb_strlen($content,'utf-8');
         if ($len == 0) {
@@ -240,27 +247,35 @@ class DfaFilter
      * 过滤敏感词
      *
      * @param string $content 文本内容
-     * @param bool $minMatch 是否是最小匹配原则
+     * @param int $matchMode 是否是最小匹配原则
      * @param string $replace 替换文本
      * @return string 过滤后的文本内容
      */
-    public function filter(string $content,$replace="*",$minMatch=true)
+    public function filter($content,$replace="*",$matchMode=self::DFA_MIN_MATCH)
     {
         $option=array(
             "action"    =>  self::DFA_REPLACE,
             "repalce"   =>  $replace,
-            "minMatch"  =>  $minMatch
+            "matchMode" =>  $matchMode
         );
 
         return $this->search($content,$option);
     }
 
-    public function mark(string $content,array $mark=["<b>","</b>"],$minMatch=true)
+    /**
+     * 自定义符号标记敏感词
+     *
+     * @param $content string 文本内容
+     * @param array $mark 标记符
+     * @param int $matchMode 是否为最小匹配模式
+     * @return string 标记后的文本
+     */
+    public function mark($content,$mark=["<b>","</b>"],$matchMode=self::DFA_MIN_MATCH)
     {
         $option=array(
             "action"    =>  self::DFA_MARK,
             "mark"      =>  $mark,
-            "minMatch"  =>  $minMatch
+            "matchMode" =>  $matchMode
         );
 
         return $this->search($content,$option);
@@ -270,10 +285,10 @@ class DfaFilter
      * 查找敏感词，并作相应操作
      *
      * @param string $content 文本内容
-     * @param array $options 操作选项
+     * @param array $option 操作选项
      * @return string 操作后的文本
      */
-    protected function search(string $content,array $option)
+    protected function search($content,$option)
     {
         $len=mb_strlen($content,'utf-8');
         if ($len == 0) {
@@ -318,7 +333,7 @@ class DfaFilter
                 //是否匹配某个词完成
                 if ($tree["isEnd"] === true) {
                     //是否是最小匹配
-                    if ($option["minMatch"] == true) {
+                    if ($option["matchMode"] == self::DFA_MIN_MATCH) {
                         $isMatch=true;
                         $matchCount++;
                         break;
@@ -331,7 +346,8 @@ class DfaFilter
             }
 
             if ($isMatch && $matchLen > 0) {
-                if ($option["minMatch"] ===false) {
+                //最大匹配模式，索引会多算一次
+                if ($option["matchMode"] == self::DFA_MAX_MATCH) {
                     $endIndex--;
                 }
                 //执行的操作
@@ -347,10 +363,11 @@ class DfaFilter
      * @param string $content 文本内容
      * @param $endIndex int 匹配到的结束位置
      * @param $len int 匹配到的长度
+     * @param $matchCount int 匹配到的次数
      * @param array $option 操作参数
      * @return string 操作后的文本内容
      */
-    protected function action(string $content,$endIndex,$len,$matchCount,array $option)
+    protected function action($content,$endIndex,$len,$matchCount,$option)
     {
         switch ($option["action"]) {
 
