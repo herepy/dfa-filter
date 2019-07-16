@@ -25,7 +25,7 @@ class DfaTest extends TestCase
     {
         if ($this->filter == null) {
             $this->filter=DfaFilter::build();
-            $this->filter->addSensitives(["测试","通过"]);
+            $this->filter->addSensitives(["测试","通过","敏感","敏感词"]);
             $this->filter->addDisturbance(["@","&","%"]);
         }
 
@@ -51,10 +51,19 @@ class DfaTest extends TestCase
 
     public function testFilter()
     {
+        $this->assertEquals("最小匹配**词啊",$this->filter->filter("最小匹配敏感词啊"));
+        $this->assertEquals("最大匹配***啊",$this->filter->filter("最大匹配敏感词啊","*",false));
+
         $this->assertEquals("这个**我不**",$this->filter->filter("这个测试我不通过"));
         $this->assertEquals("这个***我不****",$this->filter->filter("这个测@试我不通%%过"));
         $this->assertEquals("&****了,好开心",$this->filter->filter("&测试通过了,好开心"));
         $this->assertEquals("测了个试，但是没通 过，又***@ 了一边",$this->filter->filter("测了个试，但是没通 过，又测%试@ 了一边"));
+    }
+
+    public function testMark()
+    {
+        $this->assertEquals("帮我找到<b>敏感</b>词啊",$this->filter->mark("帮我找到敏感词啊",["<b>","</b>"]));
+        $this->assertEquals("帮我找到<b>敏感词</b>啊",$this->filter->mark("帮我找到敏感词啊",["<b>","</b>"],false));
     }
 
 }
