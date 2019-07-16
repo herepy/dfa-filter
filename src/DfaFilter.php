@@ -297,6 +297,7 @@ class DfaFilter
 
         $result=$content;
         $matchCount=0;
+
         for ($i=0;$i<$len;$i++) {
 
             //跳过干扰因子
@@ -332,12 +333,14 @@ class DfaFilter
 
                 //是否匹配某个词完成
                 if ($tree["isEnd"] === true) {
-                    //是否是最小匹配
+                    //最小匹配，直接下一轮匹配
                     if ($option["matchMode"] == self::DFA_MIN_MATCH) {
                         $isMatch=true;
                         $matchCount++;
                         break;
                     }
+
+                    //最大匹配时，在本轮第一次有词语匹配到时匹配次数才增加，避免“中国人”算两次(敏感词有“中国”,“中国人”)
                     if ($isMatch === false) {
                         $isMatch=true;
                         $matchCount++;
@@ -346,7 +349,7 @@ class DfaFilter
             }
 
             if ($isMatch && $matchLen > 0) {
-                //最大匹配模式，索引会多算一次
+                //最大匹配模式，索引多加了一次，修正
                 if ($option["matchMode"] == self::DFA_MAX_MATCH) {
                     $endIndex--;
                 }
