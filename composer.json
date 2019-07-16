@@ -2,6 +2,7 @@
     "name": "pengyu/dfa-filter",
     "description": "This is a sensitive words filter based on DFA",
     "type": "library",
+    "license": "MIT",
     "require": {
         "php": ">=7.0.0"
     },
