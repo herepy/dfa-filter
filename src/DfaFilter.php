@@ -317,16 +317,23 @@ class DfaFilter
 
                 //是否匹配某个词完成
                 if ($tree["isEnd"] === true) {
-                    $isMatch=true;
-                    $matchCount++;
                     //是否是最小匹配
                     if ($option["minMatch"] == true) {
+                        $isMatch=true;
+                        $matchCount++;
                         break;
+                    }
+                    if ($isMatch === false) {
+                        $isMatch=true;
+                        $matchCount++;
                     }
                 }
             }
 
             if ($isMatch && $matchLen > 0) {
+                if ($option["minMatch"] ===false) {
+                    $endIndex--;
+                }
                 //执行的操作
                 $result=$this->action($result,$endIndex,$matchLen,$matchCount,$option);
             }
