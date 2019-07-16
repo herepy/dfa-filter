@@ -73,15 +73,38 @@ class DfaFilter
      * @param string $delimiter 内容分割符
      * @throws FileNotFoundException
      */
-    public function importSensitiveFile(string $filename,$delimiter=",")
+    public function importSensitiveFile(string $filename,$delimiter=PHP_EOL)
     {
         if (!$filename || !file_exists($filename)) {
             throw new FileNotFoundException($filename);
         }
 
-        $words=explode($delimiter,file_get_contents($filename));
+        if ($delimiter !== PHP_EOL) {
+            $words=explode($delimiter,file_get_contents($filename));
+        } else {
+            //一行一个敏感词
+            foreach ($this->readLineFromFile($filename) as $word) {
+                $this->add($word);
+            }
+            return;
+        }
 
         $this->addSensitives($words);
+    }
+
+    /**
+     * 从文件中一行一行的读
+     *
+     * @param $filename 文件名
+     * @return \Generator
+     */
+    protected function readLineFromFile($filename)
+    {
+        $f=fopen($filename,"r");
+        while (!feof($f)) {
+            yield fgets($f);
+        }
+        fclose($f);
     }
 
     /**
