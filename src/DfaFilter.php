@@ -26,6 +26,12 @@ class DfaFilter
     protected static $instance;
 
     /**
+     * const 搜索时的操作类型
+     */
+    const DFA_REPLACE=1;
+    const DFA_MARK=2;
+
+    /**
      * DfaFilter constructor 单利模式，禁止手动new
      */
     protected function __construct()
@@ -201,6 +207,12 @@ class DfaFilter
         for ($i=0;$i<$len;$i++) {
             $tree=$this->tree;
 
+            //跳过干扰因子
+            $tmpChar=mb_substr($content,$i,1,'utf-8');
+            if (in_array($tmpChar,$this->disturbance)) {
+                continue;
+            }
+
             for($j=$i;$j<$len;$j++) {
                 $char=mb_substr($content,$j,1,'utf-8');
 
@@ -232,7 +244,36 @@ class DfaFilter
      * @param string $replace 替换文本
      * @return string 过滤后的文本内容
      */
-    public function filter(string $content,$minMatch=true,$replace="*")
+    public function filter(string $content,$replace="*",$minMatch=true)
+    {
+        $option=array(
+            "action"    =>  self::DFA_REPLACE,
+            "repalce"   =>  $replace,
+            "minMatch"  =>  $minMatch
+        );
+
+        return $this->search($content,$option);
+    }
+
+    public function mark(string $content,array $mark=["<b>","</b>"],$minMatch=true)
+    {
+        $option=array(
+            "action"    =>  self::DFA_MARK,
+            "mark"      =>  $mark,
+            "minMatch"  =>  $minMatch
+        );
+
+        return $this->search($content,$option);
+    }
+
+    /**
+     * 查找敏感词，并作相应操作
+     *
+     * @param string $content 文本内容
+     * @param array $options 操作选项
+     * @return string 操作后的文本
+     */
+    protected function search(string $content,array $option)
     {
         $len=mb_strlen($content,'utf-8');
         if ($len == 0) {
@@ -240,7 +281,14 @@ class DfaFilter
         }
 
         $result=$content;
+        $matchCount=0;
         for ($i=0;$i<$len;$i++) {
+
+            //跳过干扰因子
+            $tmpChar=mb_substr($content,$i,1,'utf-8');
+            if (in_array($tmpChar,$this->disturbance)) {
+                continue;
+            }
 
             $tree=$this->tree;
             $matchLen=0;
@@ -270,21 +318,59 @@ class DfaFilter
                 //是否匹配某个词完成
                 if ($tree["isEnd"] === true) {
                     $isMatch=true;
-
+                    $matchCount++;
                     //是否是最小匹配
-                    if ($minMatch == true) {
+                    if ($option["minMatch"] == true) {
                         break;
                     }
                 }
             }
 
             if ($isMatch && $matchLen > 0) {
-                $result=mb_substr($result,0,$endIndex+1-$matchLen,'utf-8').
-                        str_pad("",$matchLen,$replace).
-                        mb_substr($result,$endIndex+1,null,'utf-8');
+                //执行的操作
+                $result=$this->action($result,$endIndex,$matchLen,$matchCount,$option);
             }
         }
         return $result;
+    }
+
+    /**
+     * 执行匹配后的操作
+     *
+     * @param string $content 文本内容
+     * @param $endIndex int 匹配到的结束位置
+     * @param $len int 匹配到的长度
+     * @param array $option 操作参数
+     * @return string 操作后的文本内容
+     */
+    protected function action(string $content,$endIndex,$len,$matchCount,array $option)
+    {
+        switch ($option["action"]) {
+
+            case self::DFA_MARK:
+                $realEndIndex=$endIndex;
+                if ($matchCount > 1){
+                    //计算过滤后当前匹配真正的索引位置
+                    $realEndIndex=(
+                            mb_strlen($option["mark"][0],'utf-8') +
+                            mb_strlen($option["mark"][1],'utf-8')
+                        ) * ($matchCount-1) + $endIndex;
+                }
+
+                $content=mb_substr($content,0,$realEndIndex+1-$len,'utf-8').
+                    $option["mark"][0].
+                    mb_substr($content,$realEndIndex+1-$len,$len,'utf-8').
+                    $option["mark"][1].
+                    mb_substr($content,$realEndIndex+1,null,'utf-8');
+                break;
+
+            case self::DFA_REPLACE:
+            default:
+                $content=mb_substr($content,0,$endIndex+1-$len,'utf-8').
+                    str_pad("",$len,$option["repalce"]).
+                    mb_substr($content,$endIndex+1,null,'utf-8');
+        }
+        return $content;
     }
 
 }
