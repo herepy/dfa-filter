@@ -337,6 +337,8 @@ class DfaFilter
                     if ($option["matchMode"] == self::DFA_MIN_MATCH) {
                         $isMatch=true;
                         $matchCount++;
+                        //后续遍历跳过已匹配的索引
+                        $i=$j;
                         break;
                     }
 
@@ -344,6 +346,8 @@ class DfaFilter
                     if ($isMatch === false) {
                         $isMatch=true;
                         $matchCount++;
+                        //后续遍历跳过已匹配的索引
+                        $i=$j;
                     }
                 }
             }
