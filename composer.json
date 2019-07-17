@@ -1,6 +1,7 @@
 {
     "name": "pengyu/dfa-filter",
     "description": "This is a sensitive words filter based on DFA",
+    "keywords":["DFA","filter","sensitive word","word filter"],
     "type": "library",
     "license": "MIT",
     "require": {
