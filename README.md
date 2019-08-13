@@ -19,45 +19,57 @@
 
 PHP >= 5.5.0
 
-## 使用方式
+## 安装说明
 
-git方式安装:
+##### git方式安装:
 ```git
     git clone https://github.com/herepy/dfa-filter.git
+    composer install
 ```
-composer方式安装
+##### composer方式安装
 ```comopser
     composer require pengyu/dfa-filter
 ```
 
-引入到项目:
+##### 引入项目
 ```php
+    use Pengyu\DfaFilter\Filter;
     require_once "vendor/autoload.php";
-    use \PyDfa\DfaFilter;
+    $filer=Filter::build();
 ```
 
-示例:
+## 如何使用:
+##### 初始化实例并设置敏感词库
 ```php
-//初始化
-$filter=DfaFilter::build();
-//添加敏感词
+$filter=Filter::build();
 $filter->addSensitives(["测试","良好","通过"]);
-//添加干扰因子
+$filter->importSensitiveFile("words.txt");
+```
+##### 添加干扰因子
+```php
 $filter->addDisturbance("@");
 $filter->addDisturbance(["?","%"]);
-//检查是否是独立的敏感词
+```
+##### 检查是否是独立的敏感词
+```php
 $filter->isKey("测试呀");
 $filter->isKey("测试");
 $filter->isKey("@测?试");
-//检查是否包含敏感词
+```
+##### 检查是否包含敏感词
+```php
 $filter->check("测试呀");
 $filter->check("测试通?过了啊，感觉良?好%");
 $filter->check("这次通不过了呀");
-//敏感词替换
-$filter->filter("测试了一下，看看能不能@@通%%过了","^",DfaFilter::DFA_MAX_MATCH);
+```
+##### 敏感词替换
+```php
+$filter->filter("测试了一下，看看能不能@@通%%过了","^",Filter::DFA_MAX_MATCH);
 $filter->filter("简单的内容测?试，有敏感词");
 $filter->filter("有很?多测@@试?的词，能?不能良%好?通??%过呢");
-//标记敏感词
+```
+##### 标记敏感词
+```php
 $filter->mark("这里有一个敏感词通过,看看测@试%会不会过");
-$filter->mark("这里有一个敏感词通过,看看测@试%会不会过",["<span>","</span>"],DfaFilter::DFA_MAX_MATCH);
+$filter->mark("这里有一个敏感词通过,看看测@试%会不会过",["<span>","</span>"],Filter::DFA_MAX_MATCH);
 ```
