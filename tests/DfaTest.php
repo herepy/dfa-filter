@@ -9,7 +9,7 @@
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
-use PyDfa\DfaFilter;
+use Pengyu\DfaFilter\Filter;
 
 class DfaTest extends TestCase
 {
@@ -24,12 +24,12 @@ class DfaTest extends TestCase
     public function testBuild()
     {
         if ($this->filter == null) {
-            $this->filter=DfaFilter::build();
+            $this->filter=Filter::build();
             $this->filter->addSensitives(["测试","通过","敏感","敏感词"]);
             $this->filter->addDisturbance(["@","&","%"]);
         }
 
-        $this->assertInstanceOf("PyDfa\DfaFilter",$this->filter);
+        $this->assertInstanceOf("Pengyu\DfaFilter\Filter",$this->filter);
     }
 
     public function testIsKey()
@@ -52,7 +52,7 @@ class DfaTest extends TestCase
     public function testFilter()
     {
         $this->assertEquals("最小匹配**词啊",$this->filter->filter("最小匹配敏感词啊"));
-        $this->assertEquals("最大匹配***啊",$this->filter->filter("最大匹配敏感词啊","*",DfaFilter::DFA_MAX_MATCH));
+        $this->assertEquals("最大匹配***啊",$this->filter->filter("最大匹配敏感词啊","*",Filter::DFA_MAX_MATCH));
 
         $this->assertEquals("这个**我不**",$this->filter->filter("这个测试我不通过"));
         $this->assertEquals("这个***我不****",$this->filter->filter("这个测@试我不通%%过"));
@@ -63,7 +63,7 @@ class DfaTest extends TestCase
     public function testMark()
     {
         $this->assertEquals("帮我找到<b>敏感</b>词啊",$this->filter->mark("帮我找到敏感词啊",["<b>","</b>"]));
-        $this->assertEquals("帮我找到<b>敏感词</b>啊",$this->filter->mark("帮我找到敏感词啊",["<b>","</b>"],DfaFilter::DFA_MAX_MATCH));
+        $this->assertEquals("帮我找到<b>敏感词</b>啊",$this->filter->mark("帮我找到敏感词啊",["<b>","</b>"],Filter::DFA_MAX_MATCH));
     }
 
 }

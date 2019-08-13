@@ -6,7 +6,7 @@
  * Time: 17:14
  */
 
-namespace PyDfa;
+namespace Pengyu\DfaFilter;
 
 class FileNotFoundException extends \Exception
 {

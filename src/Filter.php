@@ -6,9 +6,9 @@
  * Time: 10:02
  */
 
-namespace PyDfa;
+namespace Pengyu\DfaFilter;
 
-class DfaFilter
+class Filter
 {
     /**
      * @var array 敏感词树
@@ -50,7 +50,7 @@ class DfaFilter
      *
      * @param array $words 敏感词
      * @param array $disturbance 干扰因子
-     * @return object|DfaFilter 过滤实例
+     * @return object|Filter 过滤实例
      */
     public static function build(array $words=[],$disturbance=[])
     {
