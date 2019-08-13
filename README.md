@@ -24,7 +24,7 @@ PHP >= 5.5.0
 ##### git方式安装:
 ```git
     git clone https://github.com/herepy/dfa-filter.git
-    composer install
+    cd dfa-filter && composer install
 ```
 ##### composer方式安装
 ```comopser
