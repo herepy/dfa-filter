@@ -46,6 +46,14 @@ class Filter
     }
 
     /**
+     * DfaFilter constructor 单利模式，禁止类被克隆
+     */
+    private function __clone()
+    {
+
+    }
+
+    /**
      * 创建过滤实例
      *
      * @param array $words 敏感词
