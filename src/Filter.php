@@ -134,9 +134,7 @@ class Filter
      */
     public function addSensitives($words)
     {
-        if (count($words) == 0) {
-            return;
-        }
+        $words=is_array($words) ? $words : [$words];
 
         foreach ($words as $word) {
             $this->add($word);
