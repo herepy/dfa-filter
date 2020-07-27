@@ -406,5 +406,10 @@ class Filter
         return $content;
     }
 
+    public function flushSensitives()
+    {
+        $this->tree = [];
+    }
+
 }
 
