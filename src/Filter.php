@@ -406,6 +406,9 @@ class Filter
         return $content;
     }
 
+    /**
+     * 清空铭感词库
+     */
     public function flushSensitives()
     {
         $this->tree = [];
