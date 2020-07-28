@@ -414,5 +414,12 @@ class Filter
         $this->tree = [];
     }
 
+    /**
+     * 清空干扰因子
+     */
+    public function flushDisturbance()
+    {
+        $this->disturbance = [];
+    }
 }
 
