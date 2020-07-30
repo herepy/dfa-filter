@@ -14,6 +14,9 @@ use Pengyu\DfaFilter\Filter;
 class DfaTest extends TestCase
 {
 
+    /**
+     * @var Filter
+     */
     private $filter=null;
 
     public function setUp()
