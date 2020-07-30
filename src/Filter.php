@@ -421,5 +421,14 @@ class Filter
     {
         $this->disturbance = [];
     }
+
+    /**
+     * 返回构建的敏感词树
+     * @return array
+     */
+    public function getSensitivesTree()
+    {
+        return $this->tree;
+    }
 }
 
