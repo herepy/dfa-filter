@@ -30,3 +30,6 @@ $filter->filter("有很?多测@@试?的词，能?不能良%好?通??%过呢");
 
 $filter->mark("这里有一个敏感词通过,看看测@试%会不会过");
 $filter->mark("这里有一个敏感词通过,看看测@试%会不会过",["<span>","</span>"],Filter::DFA_MAX_MATCH);
+
+$filter->flushDisturbance();
+$filter->flushSensitives();
