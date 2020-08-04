@@ -8,6 +8,8 @@
 
 namespace Pengyu\DfaFilter;
 
+use http\Exception\InvalidArgumentException;
+
 class Filter
 {
     /**
@@ -278,6 +280,11 @@ class Filter
      */
     public function mark($content,$mark=["<b>","</b>"],$matchMode=self::DFA_MIN_MATCH)
     {
+        $mark = $this->checkMark($mark);
+        if ($mark  === false) {
+            throw new InvalidArgumentException('invalid mark,mark must be a string or an array which has two string valus');
+        }
+
         $option=array(
             "action"    =>  self::DFA_MARK,
             "mark"      =>  $mark,
@@ -285,6 +292,29 @@ class Filter
         );
 
         return $this->search($content,$option);
+    }
+
+    /**
+     * 返回检查后的标记符对
+     *
+     * @param $mark
+     * @return array|bool
+     */
+    protected function checkMark($mark)
+    {
+        if ($mark === "" || $mark === null || empty($mark)) {
+            return false;
+        }
+
+        if (is_array($mark) && count($mark) == 1) {
+            return [$mark[0],$mark[0]];
+        }
+
+        if (is_string($mark)) {
+            return [$mark,$mark];
+        }
+
+        return is_array($mark) ? $mark : false;
     }
 
     /**
