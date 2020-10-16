@@ -57,6 +57,18 @@ class Server
     protected function doAction($action,$data)
     {
         $method = new \ReflectionMethod(Filter::class,$action);
+        $params = $method->getParameters();
+
+        $vars = [];
+        foreach ($params as $p) {
+            if (!isset($data[$p->getName()])) {
+                throw new \Exception('miss param '.$p->getName());
+            }
+
+            $vars[] = $data[$p->getName()];
+        }
+
+        return $method->invokeArgs($this->filter,$vars);
     }
 
 }
