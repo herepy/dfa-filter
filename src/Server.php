@@ -14,6 +14,7 @@ class Server
 {
     protected $server;
     protected $config;
+    protected $filter;
 
     public function __construct()
     {
@@ -23,9 +24,17 @@ class Server
 
     private function init()
     {
+        //载入配置
         $this->config = require_once 'config.php';
+
+        //初始化服务器
         $this->server->set($this->config['swoole']);
         $this->server->on('request',[$this,'request']);
+
+        //初始化过滤器
+        $this->filter = Filter::build();
+        $this->filter->importSensitiveFile($this->config['filter']['file'],$this->config['filter']['delimiter']);
+        $this->filter->addDisturbance($this->config['filter']['delimiter']);
     }
 
     public function request($request,$response)
