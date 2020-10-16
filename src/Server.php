@@ -71,4 +71,9 @@ class Server
         return $method->invokeArgs($this->filter,$vars);
     }
 
+    public function run()
+    {
+        $this->server->start();
+    }
+
 }
