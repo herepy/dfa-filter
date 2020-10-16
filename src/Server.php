@@ -45,7 +45,18 @@ class Server
 
         $action = $request->post['action'];
         $data = $request->post['data'];
-        //todo 执行对应操作
+        try {
+            $result = $this->doAction($action,$data);
+        } catch (\Exception $exception) {
+            $result = 'error:'.$exception->getMessage();
+        }
+
+        $response->end($result);
+    }
+
+    protected function doAction($action,$data)
+    {
+        $method = new \ReflectionMethod(Filter::class,$action);
     }
 
 }
