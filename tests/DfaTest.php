@@ -6,7 +6,7 @@
  * Time: 17:53
  */
 
-namespace Tests;
+namespace Pengyu\DfaFilter\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Pengyu\DfaFilter\Filter;
@@ -35,38 +35,89 @@ class DfaTest extends TestCase
         $this->assertInstanceOf("Pengyu\DfaFilter\Filter",$this->filter);
     }
 
-    public function testIsKey()
+    public function keyProvider()
     {
-        $this->assertTrue($this->filter->isKey("通过"));
-        $this->assertTrue($this->filter->isKey("通%过"));
-        $this->assertFalse($this->filter->isKey("不通过"));
-        $this->assertTrue($this->filter->isKey("测%试"));
-        $this->assertFalse($this->filter->isKey("测试了"));
+        return [
+            ['通过',true],
+            ['通%过',true],
+            ['不通过',false],
+            ['测%试',true],
+            ['测试了',false]
+        ];
     }
 
-    public function testCheck()
+    public function checkProvider()
     {
-        $this->assertTrue($this->filter->check("我@通%%过了测试"));
-        $this->assertFalse($this->filter->check("我没有过"));
-        $this->assertTrue($this->filter->check("怎么会通%不过的测&试"));
-        $this->assertFalse($this->filter->check("试一试不通 过"));
+        return [
+            ['我@通%%过了测试',true],
+            ['我没有过',false],
+            ['怎么会通%不过的测&试',true],
+            ['试一试不通 过',false]
+        ];
     }
 
-    public function testFilter()
+    public function filterProvider()
     {
-        $this->assertEquals("最小匹配**词啊",$this->filter->filter("最小匹配敏感词啊"));
-        $this->assertEquals("最大匹配***啊",$this->filter->filter("最大匹配敏感词啊","*",Filter::DFA_MAX_MATCH));
-
-        $this->assertEquals("这个**我不**",$this->filter->filter("这个测试我不通过"));
-        $this->assertEquals("这个***我不****",$this->filter->filter("这个测@试我不通%%过"));
-        $this->assertEquals("&****了,好开心",$this->filter->filter("&测试通过了,好开心"));
-        $this->assertEquals("测了个试，但是没通 过，又***@ 了一边",$this->filter->filter("测了个试，但是没通 过，又测%试@ 了一边"));
+        return [
+            ['最小匹配敏感词啊','最小匹配**词啊','*',Filter::DFA_MIN_MATCH],
+            ['最大匹配敏感词啊','最大匹配+++啊','+',Filter::DFA_MAX_MATCH],
+            ['这个测试我不通过','这个??我不??','?',Filter::DFA_MIN_MATCH],
+            ['这个测@试我不通%%过','这个***我不****','*',Filter::DFA_MIN_MATCH],
+            ['&测试通过了,好开心','&****了,好开心','*',Filter::DFA_MIN_MATCH],
+            ['测了个试，但是没通 过，又测%试@ 了一边','测了个试，但是没通 过，又***@ 了一边','*',Filter::DFA_MIN_MATCH]
+        ];
     }
 
-    public function testMark()
+    public function markProvider()
     {
-        $this->assertEquals("帮我找到<b>敏感</b>词啊",$this->filter->mark("帮我找到敏感词啊",["<b>","</b>"]));
-        $this->assertEquals("帮我找到<b>敏感词</b>啊",$this->filter->mark("帮我找到敏感词啊",["<b>","</b>"],Filter::DFA_MAX_MATCH));
+        return [
+            ['帮我找到敏感词啊','帮我找到<b>敏感</b>词啊',["<b>","</b>"],Filter::DFA_MIN_MATCH],
+            ['帮我找到敏感词啊','帮我找到<b>敏感词</b>啊',["<b>","</b>"],Filter::DFA_MAX_MATCH]
+        ];
+    }
+
+    /**
+     * @param $key
+     * @param $result
+     * @dataProvider keyProvider
+     */
+    public function testIsKey($key,$result)
+    {
+        $this->assertEquals($this->filter->isKey($key),$result);
+    }
+
+    /**
+     * @param $content
+     * @param $result
+     * @dataProvider checkProvider
+     */
+    public function testCheck($content,$result)
+    {
+        $this->assertEquals($this->filter->check($content),$result);
+    }
+
+    /**
+     * @param $content
+     * @param $result
+     * @param $replace
+     * @param $matchMode
+     * @dataProvider filterProvider
+     */
+    public function testFilter($content,$result,$replace,$matchMode)
+    {
+        $this->assertEquals($result,$this->filter->filter($content,$replace,$matchMode));
+    }
+
+    /**
+     * @param $content
+     * @param $result
+     * @param $marker
+     * @param $matchMode
+     * @dataProvider markProvider
+     */
+    public function testMark($content,$result,$marker,$matchMode)
+    {
+        $this->assertEquals($result,$this->filter->mark($content,$marker,$matchMode));
     }
 
 }
