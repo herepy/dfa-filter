@@ -20,7 +20,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~6.0",
-        "swoft/swoole-ide-helper": "^4.4"
+        "swoft/swoole-ide-helper": "^4.4",
+        "ext-xdebug": "*"
     },
     "autoload-dev": {
         "psr-4": {
