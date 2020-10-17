@@ -48,12 +48,21 @@ class Server
         $data = $postData['data'];
 
         try {
-            $result = $this->doAction($action,$data);
+            $result = [
+                'code'  =>  0,
+                'msg'   =>  'ok',
+                'data'  =>  $this->doAction($action,$data)
+            ];
         } catch (\Exception $exception) {
-            $result = 'error:'.$exception->getMessage();
+            $result = [
+                'code'  =>  1,
+                'msg'   =>  $exception->getMessage(),
+                'data'  =>  ''
+            ];
         }
 
-        $response->end($result);
+        $response->header('Content-Type','application/json; charset=utf-8');
+        $response->end(json_encode($result));
     }
 
     protected function doAction($action,$data)
