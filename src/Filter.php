@@ -460,5 +460,14 @@ class Filter
     {
         return $this->tree;
     }
+
+    /**
+     * 返回干扰因子
+     * @return array
+     */
+    public function getDisturbance()
+    {
+        return $this->disturbance;
+    }
 }
 
