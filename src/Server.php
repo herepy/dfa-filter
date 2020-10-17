@@ -18,15 +18,14 @@ class Server
 
     public function __construct()
     {
+        //载入配置
+        $this->config = require_once 'config.php';
         $this->server = new \Swoole\Http\Server($this->config['host'],$this->config['port']);
         $this->init();
     }
 
     private function init()
     {
-        //载入配置
-        $this->config = require_once 'config.php';
-
         //初始化服务器
         $this->server->set($this->config['swoole']);
         $this->server->on('request',[$this,'request']);
@@ -43,8 +42,11 @@ class Server
             return;
         }
 
-        $action = $request->post['action'];
-        $data = $request->post['data'];
+        $postData = json_decode($request->getContent(),true);
+
+        $action = $postData['action'];
+        $data = $postData['data'];
+
         try {
             $result = $this->doAction($action,$data);
         } catch (\Exception $exception) {
@@ -61,11 +63,11 @@ class Server
 
         $vars = [];
         foreach ($params as $p) {
-            if (!isset($data[$p->getName()])) {
+            if (!isset($data[$p->getName()]) && !$p->isDefaultValueAvailable()) {
                 throw new \Exception('miss param '.$p->getName());
             }
 
-            $vars[] = $data[$p->getName()];
+            $vars[] = isset($data[$p->getName()]) ? $data[$p->getName()] : $p->getDefaultValue();
         }
 
         return $method->invokeArgs($this->filter,$vars);

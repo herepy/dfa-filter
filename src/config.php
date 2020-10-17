@@ -17,7 +17,7 @@ return [
         'dispatch_mode' => 1,
     ],
     'filter'    =>  [
-        'file'          =>  '',   // 敏感词文件
+        'file'          =>  './src/test.txt',   // 敏感词文件
         'delimiter'     =>  '|',  // 文件内容分隔符
         'disturbance'   =>  []    // 干扰因子
     ]
