@@ -8,7 +8,6 @@
 
 namespace Pengyu\DfaFilter;
 
-use http\Exception\InvalidArgumentException;
 
 class Filter
 {
@@ -161,6 +160,7 @@ class Filter
 
             if (!isset($tree["map"][$char])) {
                 $tree["map"][$char]=array("isEnd"=>false,"map"=>array());
+                $tree['isEnd'] = false;
             }
 
             $tree=&$tree["map"][$char];
@@ -282,7 +282,7 @@ class Filter
     {
         $mark = $this->checkMark($mark);
         if ($mark  === false) {
-            throw new InvalidArgumentException('invalid mark,mark must be a string or an array which has two string valus');
+            throw new ArgumentException('mark');
         }
 
         $option=array(
