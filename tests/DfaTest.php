@@ -8,6 +8,8 @@
 
 namespace Pengyu\DfaFilter\Tests;
 
+use Pengyu\DfaFilter\ArgumentException;
+use Pengyu\DfaFilter\FileNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Pengyu\DfaFilter\Filter;
 
@@ -21,18 +23,22 @@ class DfaTest extends TestCase
 
     public function setUp()
     {
-        $this->testBuild();
-    }
-
-    public function testBuild()
-    {
-        if ($this->filter == null) {
+        if ($this->filter === null) {
             $this->filter=Filter::build();
-            $this->filter->addSensitives(["测试","通过","敏感","敏感词"]);
-            $this->filter->addDisturbance(["@","&","%"]);
-        }
 
-        $this->assertInstanceOf("Pengyu\DfaFilter\Filter",$this->filter);
+            $this->filter->addSensitives(["测试","通过","敏感","敏感词"]);
+            $this->filter->addSensitives('');
+            $this->filter->importSensitiveFile('./src/test.txt','|');
+            $this->filter->importSensitiveFile('./src/testa.txt');
+            try {
+                $this->filter->importSensitiveFile('./src/testNotFound.txt');
+            } catch (\Exception $exception) {
+                $this->assertInstanceOf(FileNotFoundException::class,$exception);
+            }
+
+            $this->filter->addDisturbance(["@","&"]);
+            $this->filter->addDisturbance('%');
+        }
     }
 
     public function keyProvider()
@@ -42,7 +48,9 @@ class DfaTest extends TestCase
             ['通%过',true],
             ['不通过',false],
             ['测%试',true],
-            ['测试了',false]
+            ['测试了',false],
+            ['%@&',false],
+            ['',false]
         ];
     }
 
@@ -52,7 +60,8 @@ class DfaTest extends TestCase
             ['我@通%%过了测试',true],
             ['我没有过',false],
             ['怎么会通%不过的测&试',true],
-            ['试一试不通 过',false]
+            ['试一试不通 过',false],
+            ['',false]
         ];
     }
 
@@ -64,7 +73,8 @@ class DfaTest extends TestCase
             ['这个测试我不通过','这个??我不??','?',Filter::DFA_MIN_MATCH],
             ['这个测@试我不通%%过','这个***我不****','*',Filter::DFA_MIN_MATCH],
             ['&测试通过了,好开心','&****了,好开心','*',Filter::DFA_MIN_MATCH],
-            ['测了个试，但是没通 过，又测%试@ 了一边','测了个试，但是没通 过，又***@ 了一边','*',Filter::DFA_MIN_MATCH]
+            ['测了个试，但是没通 过，又测%试@ 了一边','测了个试，但是没通 过，又***@ 了一边','*',Filter::DFA_MIN_MATCH],
+            ['','','*',Filter::DFA_MIN_MATCH]
         ];
     }
 
@@ -118,6 +128,26 @@ class DfaTest extends TestCase
     public function testMark($content,$result,$marker,$matchMode)
     {
         $this->assertEquals($result,$this->filter->mark($content,$marker,$matchMode));
+    }
+
+    public function testCheckMark()
+    {
+        $this->assertEquals('帮我找到<b>敏感</b>词啊',$this->filter->mark('帮我找到敏感词啊',["<b>","</b>"]));
+        $this->assertEquals('帮我找到+敏感+词啊',$this->filter->mark('帮我找到敏感词啊','+'));
+        $this->assertEquals('帮我找到|敏感|词啊',$this->filter->mark('帮我找到敏感词啊',['|']));
+
+        try {
+            $this->assertEquals('帮我找到<b>敏感</b>词啊',$this->filter->mark('帮我找到敏感词啊',''));
+        } catch (\Exception $exception) {
+            $this->assertInstanceOf(ArgumentException::class,$exception);
+        }
+
+    }
+
+    public function testFlushSensitives()
+    {
+        $this->filter->flushSensitives();
+        $this->assertEquals([],$this->filter->getSensitivesTree());
     }
 
 }
