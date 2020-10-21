@@ -150,4 +150,10 @@ class DfaTest extends TestCase
         $this->assertEquals([],$this->filter->getSensitivesTree());
     }
 
+    public function testFlushDisturbance()
+    {
+        $this->filter->flushDisturbance();
+        $this->assertEquals([],$this->filter->getDisturbance());
+    }
+
 }
