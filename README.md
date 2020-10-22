@@ -78,3 +78,6 @@ $filter->mark("这里有一个敏感词通过,看看测@试%会不会过",["<spa
 $filter->flushSensitives();
 $filter->flushDisturbance();
 ```
+##### 查看当前敏感词树和干扰因子
+$filter->getSensitivesTree();
+$filter->getDisturbance();
