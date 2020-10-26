@@ -9,6 +9,7 @@
 * 支持数组和`文件导入`两种方式添加敏感词，自定义文件导入时的敏感词分割符
 * 支持添加`干扰因子`来增强敏感词的识别能力
 * 自定义符号`标记`敏感词
+* `内置server，适用于api方式调用`
 * `匹配模式`模式分为最大最小两种，默认最小匹配模式
 * `检测词语`是否是敏感词
 * `检测文本`是否包含敏感词
@@ -79,5 +80,15 @@ $filter->flushSensitives();
 $filter->flushDisturbance();
 ```
 ##### 查看当前敏感词树和干扰因子
+```php
 $filter->getSensitivesTree();
 $filter->getDisturbance();
+```
+##### 启动内置server
+```shell script
+php run.php
+```
+#### 调用server api
+```shell script
+curl -H "Content-Type: application/json" -X POST -d '{"action": "isKey", "data":{"word":"敏感词"} }'
+```
