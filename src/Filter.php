@@ -123,7 +123,7 @@ class Filter
     {
         $f=fopen($filename,"r");
         while (!feof($f)) {
-            yield fgets($f);
+            yield trim(fgets($f));
         }
         fclose($f);
     }
